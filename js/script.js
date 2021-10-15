@@ -97,4 +97,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setClock('.timer', deadline);
+
+    //modal window
+
+    const modalBtns = document.querySelectorAll('[data-modal]'),
+          modalWindow = document.querySelector('.modal'),
+          modalWindowClose = document.querySelector('[data-close]');
+    console.log(modalBtns, modalWindow, modalWindowClose);
+
+    modalBtns.forEach(element =>{
+        element.addEventListener('click',()=>{
+            modalWindow.classList.add('show', 'fade');
+            modalWindow.classList.remove('hide');
+            document.body.style.overflow = 'hidden';
+        })
+    })
+
+    function closeModalWindow(){
+        modalWindow.classList.remove('show', 'fade');
+        modalWindow.classList.add('hide');
+        document.body.style.overflow = 'visible';
+    }
+
+    modalWindowClose.addEventListener('click', closeModalWindow)
+
+    //Закрытие модального окна по клику в 'пустоту'
+    modalWindow.addEventListener('click',(event)=>{
+        const target = event.target;
+        if( target && target.matches('div.modal')){
+          closeModalWindow();
+        }
+    })
+
+    //Закрытие модального окна по нажатию Escape
+    document.addEventListener('keydown', (event) =>{
+        if(event.code === "Escape" && modalWindow.classList.contains('show')){
+            closeModalWindow();
+        }
+    })
 });
