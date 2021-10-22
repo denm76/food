@@ -105,12 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
           modalWindowClose = document.querySelector('[data-close]');
     console.log(modalBtns, modalWindow, modalWindowClose);
 
+    function openModal(){
+        modalWindow.classList.add('show', 'fade');
+        modalWindow.classList.remove('hide');
+        document.body.style.overflow = 'hidden';
+        clearInterval(modalTimerId);//Выключение всплытия модального окна через пять секунд
+    }
+
     modalBtns.forEach(element =>{
-        element.addEventListener('click',()=>{
-            modalWindow.classList.add('show', 'fade');
-            modalWindow.classList.remove('hide');
-            document.body.style.overflow = 'hidden';
-        })
+        element.addEventListener('click',openModal);
     })
 
     function closeModalWindow(){
@@ -135,4 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModalWindow();
         }
     })
+
+    const modalTimerId = setTimeout(openModal, 5000);
+    //функция подсчета прокрутки экрана,
+    // после срабатывания удаляет слушатель события прокрутки
+    function showModalByScroll(){
+        if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight){
+            openModal();
+            window.removeEventListener('scroll',showModalByScroll);
+        }
+    }
+    //Слушатель события прокрутки экрана, если пользователь долистал до конца,
+    //срабатывает открытие модального окна
+    window.addEventListener('scroll',showModalByScroll);
 });
