@@ -223,4 +223,36 @@ document.addEventListener('DOMContentLoaded', () => {
         'menu__item'
 
     ).render();
+
+    //forms
+
+    const forms = document.querySelectorAll('form');
+    const message = {
+        loading: 'Загрузка',
+        success: 'Спасибо, скоро мы с вами свяжемся.',
+        failure: 'Что-то пошло не так...'
+    }
+
+    function postData(form){
+        form.addEventListener('submit', (event)=>{
+            event.preventDefault();
+            const request = new XMLHttpRequest();
+
+            //Создаем блок оповещения пользователя
+            
+
+            request.open('POST', 'server.php');
+            request.setRequestHeader('Content-type', 'multipart/form-data');
+
+            //Создание объекта FormData
+            const formData = new FormData(form);
+            request.send(formData);
+
+            request.addEventListener('load', ()=>{
+                if(request.status === 200){
+                    console.log(request.response);
+                }
+            })
+        })
+    }
 });
