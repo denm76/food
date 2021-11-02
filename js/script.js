@@ -98,48 +98,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setClock('.timer', deadline);
 
-    //modal window
+    //Modal window
 
-    const modalBtns = document.querySelectorAll('[data-modal]'),
-          modalWindow = document.querySelector('.modal'),
-          modalWindowClose = document.querySelector('[data-close]');
+    const modalTrigger = document.querySelectorAll('[data-modal]'),
+        modal = document.querySelector('.modal');
 
-
-    function openModal(){
-        modalWindow.classList.add('show', 'fade');
-        modalWindow.classList.remove('hide');
+    function openModal(){  //Функция показа модального окна
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        // modal.classList.toggle('show');
         document.body.style.overflow = 'hidden';
-        clearInterval(modalTimerId);//Выключение всплытия модального окна через пять секунд
+        clearInterval(modalTimerId);//Отмена появления модального окна через пять секунд
     }
 
-    modalBtns.forEach(element =>{
-        element.addEventListener('click',openModal);
-    })
+    modalTrigger.forEach(btn => {
+        btn.addEventListener('click', openModal);
+    });
 
-    function closeModalWindow(){
-        modalWindow.classList.remove('show', 'fade');
-        modalWindow.classList.add('hide');
-        document.body.style.overflow = 'visible';
+
+    function closeModal(){
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        // modal.classList.toggle('show');
+        document.body.style.overflow = '';
     }
 
-    modalWindowClose.addEventListener('click', closeModalWindow)
 
-    //Закрытие модального окна по клику в 'пустоту'
-    modalWindow.addEventListener('click',(event)=>{
-        const target = event.target;
-        if( target && target.matches('div.modal')){
-          closeModalWindow();
+    //modalCloseBtn.addEventListener('click', closeModal);Убираем назначение обработчика при клике на крестик,т.к. прописываем данное условие в другом обработчике ниже> e.target.getAttribute('data-close') == ''
+
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal || e.target.getAttribute('data-close') === ''){
+            closeModal();
         }
-    })
+    });
 
-    //Закрытие модального окна по нажатию Escape
-    document.addEventListener('keydown', (event) =>{
-        if(event.code === "Escape" && modalWindow.classList.contains('show')){
-            closeModalWindow();
+    document.addEventListener('keydown', (e) => {//event.code нажатие клавиши эскейп
+        if(e.code === "Escape" && modal.classList.contains('show')){
+            closeModal();
         }
-    })
+    });
 
-    const modalTimerId = setTimeout(openModal, 5000);
+    const modalTimerId = setTimeout(openModal, 50000);//Запуск модального окна через 5 секунд после входа на сайт
     //функция подсчета прокрутки экрана,
     // после срабатывания удаляет слушатель события прокрутки
     function showModalByScroll(){
@@ -227,33 +226,35 @@ document.addEventListener('DOMContentLoaded', () => {
     //forms
 
     const forms = document.querySelectorAll('form');
-    const message = {
-        loading: 'Загрузка',
-        success: 'Спасибо, скоро мы с вами свяжемся.',
-        failure: 'Что-то пошло не так...'
+    const message = {//Объект с сообщениями о статусе отправки данных из формы
+        loading:"img/form/spinner.svg",
+        success:"Спасибо, мы с вами скоро свяжемся",
+        failure:"img/form/spinner.svg"
     };
 
     forms.forEach(item=>{
         postData(item);
     })
 
-    function postData(form){
-        form.addEventListener('submit', (event)=>{
-            event.preventDefault();
+    function postData(form) {
+       form.addEventListener('submit',(e)=>{
+            e.preventDefault();//Отмена стандартного поведения браузера(Отменяем перезагрузку страницы после отправки формы)
 
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display:block;
+                margin:0 auto;
+            `;
 
-            //Создаем блок оповещения пользователя
-            let statusMessage = document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent = message.loading;
-            //Добавляем это сообщение к форме
-            form.append(statusMessage);
+            form.insertAdjacentElement("afterend", statusMessage);
 
             const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
+            request.open('POST','server.php');
+
             request.setRequestHeader('Content-type', 'application/json');
-            //Создание объекта FormData
             const formData = new FormData(form);
+
             const object = {};//Если сервер работает с JSON а не FormData
             formData.forEach((value,key)=>{
                 object[key] = value;
@@ -261,24 +262,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const json = JSON.stringify(object);
             request.send(json);
 
-
-
             //request.send(formData);
 
-            request.addEventListener('load', ()=>{
+            request.addEventListener('load',()=>{
                 if(request.status === 200){
                     console.log(request.response);
-                    statusMessage.textContent = message.success;
-                    form.reset();
-                    setTimeout(()=>{
-                        statusMessage.remove();
-                    },2000);
 
-                }else{
-                    statusMessage.textContent = message.failure;
+                    showThanksModal(message.success);//Показываем окно сообщением о успехе и благодарности
+                    form.reset();//Очищаем форму после отправки сообщения
+                    statusMessage.remove();
                 }
-            })
-        })
+                else{
+                    showThanksModal(message.failure);//Показываем окно с сообщением о неудаче
+                }
+            });
+
+        });
+    }
+
+    function showThanksModal(message){//Функция показа благодарности за отправку данных через форму
+        const previousModalDialog = document.querySelector('.modal__dialog');//Определяем блок модального окна
+
+        previousModalDialog.classList.add('hide');//Скрываем модальное окно добавлением класса hide
+        openModal();//Modal window is opened
+
+        const thanksModal = document.createElement('div');//Создаем элемент модального окна с сообщением
+        thanksModal.classList.add('modal__dialog');//Добавляем класс модального окна созданному элементу
+        //Формируем HTML разметку элемента
+        thanksModal.innerHTML = `
+            <div class="modal__content">
+                    <div  data-close class="modal__close" >×</div>
+                    <div class="modal__title">${message}</div>
+            </div>
+            
+        `;
+        document.querySelector('.modal').append(thanksModal);//Добавляем блок с сообщением в блок modal
+        //Убираем блок thanksModal через 4 секунды и возвращаем предыдущую разметку
+        setTimeout(()=>{
+            thanksModal.remove();
+            previousModalDialog.classList.add('show');
+            previousModalDialog.classList.remove('hide');
+            closeModal();//закрываем модальное окно
+        },3000);
     }
 
 
