@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = {//Объект с сообщениями о статусе отправки данных из формы
         loading:"img/form/spinner.svg",
         success:"Спасибо, мы с вами скоро свяжемся",
-        failure:"img/form/spinner.svg"
+        failure:"Что-то пошло не так..."
     };
 
     forms.forEach(item=>{
@@ -249,33 +249,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             form.insertAdjacentElement("afterend", statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open('POST','server.php');
 
-            request.setRequestHeader('Content-type', 'application/json');
+
+
             const formData = new FormData(form);
 
             const object = {};//Если сервер работает с JSON а не FormData
             formData.forEach((value,key)=>{
                 object[key] = value;
             })
-            const json = JSON.stringify(object);
-            request.send(json);
+
 
             //request.send(formData);
+            fetch('server1.php',{
+               method:'POST',
+               // headers:{'Content-type':'application/json'},
+               body:JSON.stringify(object)
+            }).then(data => data.text()
+            ).then(data => {
+                console.log(data);
+                showThanksModal(message.success);//Показываем окно сообщением о успехе и благодарности
+                form.reset();//Очищаем форму после отправки сообщения
+                statusMessage.remove();
+            }).catch(()=>{
+                showThanksModal(message.failure);//Показываем окно с сообщением о неудаче
+            }).finally(()=>{
+                form.reset();//Очищаем форму после отправки сообщения
+            })
 
-            request.addEventListener('load',()=>{
-                if(request.status === 200){
-                    console.log(request.response);
-
-                    showThanksModal(message.success);//Показываем окно сообщением о успехе и благодарности
-                    form.reset();//Очищаем форму после отправки сообщения
-                    statusMessage.remove();
-                }
-                else{
-                    showThanksModal(message.failure);//Показываем окно с сообщением о неудаче
-                }
-            });
 
         });
     }
