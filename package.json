@@ -1,5 +1,23 @@
 {
   "dependencies": {
     "jshint": "^2.13.1"
-  }
+  },
+  "name": "foodpetr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/denm76/food.git"
+  },
+  "author": "denm76",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/denm76/food/issues"
+  },
+  "homepage": "https://github.com/denm76/food#readme",
+  "description": ""
 }
