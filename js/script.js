@@ -3,18 +3,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Tabs
     const   tabs = document.querySelectorAll('.tabheader__item'),
-            tabsContent = document.querySelectorAll('.tabcontent',),
+            tabsContent = document.querySelectorAll('.tabcontent'),
             tabsParent = document.querySelector('.tabheader__items');
 
     function hideTabContent(){
         tabsContent.forEach((item)=>{
             item.classList.add('hide');
             item.classList.remove('show', 'fade');
-        })
+        });
 
         tabs.forEach((item)=>{
             item.classList.remove('tabheader__item_active');
-        })
+        });
     }
     
     function showTabContent(index = 0) {
@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     hideTabContent();
                     showTabContent(index);
                 }
-            })
+            });
         }
-    })
+    });
 
 
     //Timer
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'hours':hours,
             'minutes':minutes,
             'seconds':seconds
-        }
+        };
     }
 
     function getZero(num){
@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
             minutes = timer.querySelector('#minutes'),
             seconds = timer.querySelector('#seconds'),
             timeInterval = setInterval(updateClock, 1000);
-        //Запускаем функцию обновления до запуска setInterval во избежания мегания таймера на странице
+        //Запускаем функцию обновления до запуска setInterval 
+        //во избежания мегания таймера на странице
         updateClock();
 
         function updateClock(){
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.add('show');
         modal.classList.remove('hide');
         // modal.classList.toggle('show');
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';//Запрет прокрутки окна браузера
         clearInterval(modalTimerId);//Отмена появления модального окна через пять секунд
     }
 
@@ -120,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.add('hide');
         modal.classList.remove('show');
         // modal.classList.toggle('show');
-        document.body.style.overflow = '';
+        document.body.style.overflow = '';//Разрешение прокрутки окна браузера
     }
 
 
@@ -175,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.classes = 'menu__item';
                 element.classList.add(this.classes);
             }else{
-                this.classes.forEach(className => {element.classList.add(className)});
+                this.classes.forEach(className => element.classList.add(className));
             }
 
             element.innerHTML = `
@@ -187,41 +188,84 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="menu__item-cost">Цена:</div>
                         <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
                     </div>
-            `
+            `;
             this.parent.append(element);
         }
     }
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container",
-    ).render();//Одноразовый вызов объекта класса без сохранения
+    //Функция получения постов для карточек из БД
+    const getResource = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        20,
-        ".menu .container",
-        'menu__item'
+        if(!res.ok){
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
 
-    ).render();
+        return await res.json();
+    };
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        15,
-        ".menu .container",
-        'menu__item'
+    getResource('http://localhost:3000/menu')
+            .then(data => {
+                //Деструктурируем объекты массива ответа поэлементно 
+                //в аргументы создания функции карточки
+                data.forEach( ({img,altimg,title,descr,price}) =>{
+                    new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+                });
+            });
 
-    ).render();
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => createCard(data));
+
+    // function createCard(data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+
+    //         element.classList.add("menu__item");
+
+    //         element.innerHTML = `
+    //             <img src=${img} alt=${altimg}>
+    //             <h3 class="menu__item-subtitle">${title}</h3>
+    //             <div class="menu__item-descr">${descr}</div>
+    //             <div class="menu__item-divider"></div>
+    //             <div class="menu__item-price">
+    //                 <div class="menu__item-cost">Цена:</div>
+    //                 <div class="menu__item-total"><span>${price}</span> грн/день</div>
+    //             </div>
+    //         `;
+    //         document.querySelector(".menu .container").append(element);
+    //     });
+    // }
+
+    // new MenuCard(
+    //     "img/tabs/vegy.jpg",
+    //     "vegy",
+    //     'Меню "Фитнес"',
+    //     'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+    //     9,
+    //     ".menu .container"
+    // ).render();//Одноразовый вызов объекта класса без сохранения
+
+    // new MenuCard(
+    //     "img/tabs/elite.jpg",
+    //     "elite",
+    //     'Меню “Премиум”',
+    //     'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+    //     20,
+    //     ".menu .container",
+    //     'menu__item'
+
+    // ).render();
+
+    // new MenuCard(
+    //     "img/tabs/post.jpg",
+    //     "post",
+    //     'Меню "Постное"',
+    //     'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+    //     15,
+    //     ".menu .container",
+    //     'menu__item'
+
+    // ).render();
 
     //forms
 
@@ -233,14 +277,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(item=>{
-        postData(item);
-    })
+        bindPostData(item);
+    });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method:'POST',
+            headers:{
+                'Content-type':'application/json'
+            },
+            body:data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostData(form) {
        form.addEventListener('submit',(e)=>{
-            e.preventDefault();//Отмена стандартного поведения браузера(Отменяем перезагрузку страницы после отправки формы)
+            e.preventDefault();//Отмена стандартного поведения браузера(Отменяем перезагрузку
+            // страницы после отправки формы)
 
-            const statusMessage = document.createElement('img');
+            let statusMessage = document.createElement('img');
             statusMessage.src = message.loading;
             statusMessage.style.cssText = `
                 display:block;
@@ -251,22 +308,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+            //Создание объекта FormData из данных формы и 
+            //преобразование его в формат Json
+            const formData = new FormData(form),
+                  json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            const formData = new FormData(form);
-
-            const object = {};//Если сервер работает с JSON а не FormData
-            formData.forEach((value,key)=>{
-                object[key] = value;
-            })
+            // const object = {};//Если сервер работает с JSON а не FormData
+            // formData.forEach((value,key)=>{
+            //     object[key] = value;
+            // });
 
 
             //request.send(formData);
-            fetch('server1.php',{
-               method:'POST',
-               // headers:{'Content-type':'application/json'},
-               body:JSON.stringify(object)
-            }).then(data => data.text()
-            ).then(data => {
+            postData('http://localhost:3000/requests', json)
+                .then(data => {
                 console.log(data);
                 showThanksModal(message.success);//Показываем окно сообщением о успехе и благодарности
                 form.reset();//Очищаем форму после отправки сообщения
@@ -275,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showThanksModal(message.failure);//Показываем окно с сообщением о неудаче
             }).finally(()=>{
                 form.reset();//Очищаем форму после отправки сообщения
-            })
+            });
 
 
         });
@@ -307,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },3000);
     }
 
-    fetch(' http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(result => console.log(result));
+    // fetch(' http://localhost:3000/menu')
+    //     .then(data => data.json())
+    //     .then(result => console.log(result));
 });
