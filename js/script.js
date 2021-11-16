@@ -193,6 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    axios.get('http://localhost:3000/menu')
+    .then(data => {
+        //Деструктурируем объекты массива ответа поэлементно 
+        //в аргументы создания функции карточки
+        data.data.forEach( ({img,altimg,title,descr,price}) =>{
+            new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+        });
+    });
+
     //Функция получения постов для карточек из БД
     const getResource = async (url) => {
         const res = await fetch(url);
@@ -204,14 +213,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return await res.json();
     };
 
-    getResource('http://localhost:3000/menu')
-            .then(data => {
-                //Деструктурируем объекты массива ответа поэлементно 
-                //в аргументы создания функции карточки
-                data.forEach( ({img,altimg,title,descr,price}) =>{
-                    new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
-                });
-            });
+    // getResource('http://localhost:3000/menu')
+    //         .then(data => {
+    //             //Деструктурируем объекты массива ответа поэлементно 
+    //             //в аргументы создания функции карточки
+    //             data.forEach( ({img,altimg,title,descr,price}) =>{
+    //                 new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    //             });
+    //         });
 
     // getResource('http://localhost:3000/menu')
     //     .then(data => createCard(data));
