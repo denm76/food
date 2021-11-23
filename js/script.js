@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 50000);//Запуск модального окна через 5 секунд после входа на сайт
+    const modalTimerId = setTimeout(openModal, 5000);//Запуск модального окна через 5 секунд после входа на сайт
     //функция подсчета прокрутки экрана,
     // после срабатывания удаляет слушатель события прокрутки
     function showModalByScroll(){
@@ -374,4 +374,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // fetch(' http://localhost:3000/menu')
     //     .then(data => data.json())
     //     .then(result => console.log(result));
+
+    //Slider 
+    const current = document.querySelector('#current'),
+        offersliderPrev = document.querySelector('.offer__slider-prev'),
+        offersliderNext = document.querySelector('.offer__slider-next'),
+        offerSlide = document.querySelectorAll('.offer__slide'),
+        total = document.querySelector('#total');
+
+    total.textContent = getZero(offerSlide.length);
+
+    let slideIndex = 0;
+
+    function changeSlideNumber(index){
+        current.innerHTML = getZero(index+1); 
+    }
+
+    function showSlide(index = 0){
+        changeSlideNumber(index);
+        offerSlide.forEach((item, number)=>{
+        if(number !== index){
+            item.classList.remove('show', 'fade');
+            item.classList.add('hide');
+        }
+        else{
+            item.classList.remove('hide');
+            item.classList.add('show', 'fade');
+        }
+        });
+    }
+
+    showSlide();
+
+
+    offersliderNext.addEventListener('click', () =>{
+        slideIndex++;
+        if(slideIndex === offerSlide.length){
+            slideIndex = 0;
+        }
+        showSlide(slideIndex);
+    });
+
+    offersliderPrev.addEventListener('click', () => {
+        slideIndex--;
+        if(slideIndex < 0 ){
+            slideIndex = 3;
+        }
+        showSlide(slideIndex);
+    });
 });
+
