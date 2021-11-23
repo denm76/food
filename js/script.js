@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 5000);//Запуск модального окна через 5 секунд после входа на сайт
+    //const modalTimerId = setTimeout(openModal, 5000);//Запуск модального окна через 5 секунд после входа на сайт
     //функция подсчета прокрутки экрана,
     // после срабатывания удаляет слушатель события прокрутки
     function showModalByScroll(){
@@ -380,47 +380,103 @@ document.addEventListener('DOMContentLoaded', () => {
         offersliderPrev = document.querySelector('.offer__slider-prev'),
         offersliderNext = document.querySelector('.offer__slider-next'),
         offerSlide = document.querySelectorAll('.offer__slide'),
-        total = document.querySelector('#total');
+        total = document.querySelector('#total'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-inner'),
+        width = window.getComputedStyle(slidesWrapper).width;
+
+    let slideIndex = 1;
+    let offset = 0;
+
+    slidesField.style.width = 100 * offerSlide.length + '%';
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all';
+    slidesWrapper.style.overflow = 'hidden';
 
     total.textContent = getZero(offerSlide.length);
+    current.textContent = getZero(slideIndex);
 
-    let slideIndex = 0;
-
-    function changeSlideNumber(index){
-        current.innerHTML = getZero(index+1); 
-    }
-
-    function showSlide(index = 0){
-        changeSlideNumber(index);
-        offerSlide.forEach((item, number)=>{
-        if(number !== index){
-            item.classList.remove('show', 'fade');
-            item.classList.add('hide');
-        }
-        else{
-            item.classList.remove('hide');
-            item.classList.add('show', 'fade');
-        }
-        });
-    }
-
-    showSlide();
-
-
-    offersliderNext.addEventListener('click', () =>{
-        slideIndex++;
-        if(slideIndex === offerSlide.length){
-            slideIndex = 0;
-        }
-        showSlide(slideIndex);
+    offerSlide.forEach(slide => {
+        slide.style.width = width;
     });
 
-    offersliderPrev.addEventListener('click', () => {
-        slideIndex--;
-        if(slideIndex < 0 ){
-            slideIndex = 3;
+    offersliderNext.addEventListener('click', ()=>{
+        if(offset == +width.slice(0, width.length - 2)*(offerSlide.length - 1)){
+            offset = 0;
+        }else{
+            offset += +width.slice(0, width.length - 2);
         }
-        showSlide(slideIndex);
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if(slideIndex == offerSlide.length){
+            slideIndex = 1;
+        }else{
+            slideIndex++;
+        }
+
+        current.textContent = getZero(slideIndex);
     });
+
+    offersliderPrev.addEventListener('click', ()=>{
+        if(offset == 0){
+            offset = +width.slice(0, width.length - 2)*(offerSlide.length - 1);
+        }else{
+            offset -= +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if(slideIndex == 1){
+            slideIndex = offerSlide.length;
+        }else{
+            slideIndex--;
+        }
+
+        current.textContent = getZero(slideIndex);
+
+
+        
+    });
+    
+    
+   
+
+    // function changeSlideNumber(index){
+    //     current.innerHTML = getZero(index+1); 
+    // }
+
+    // function showSlide(index = 0){
+    //     changeSlideNumber(index);
+    //     offerSlide.forEach((item, number)=>{
+    //     if(number !== index){
+    //         item.classList.remove('show', 'fade');
+    //         item.classList.add('hide');
+    //     }
+    //     else{
+    //         item.classList.remove('hide');
+    //         item.classList.add('show', 'fade');
+    //     }
+    //     });
+    // }
+
+    // showSlide();
+
+
+    // offersliderNext.addEventListener('click', () =>{
+    //     slideIndex++;
+    //     if(slideIndex === offerSlide.length){
+    //         slideIndex = 0;
+    //     }
+    //     showSlide(slideIndex);
+    // });
+
+    // offersliderPrev.addEventListener('click', () => {
+    //     slideIndex--;
+    //     if(slideIndex < 0 ){
+    //         slideIndex = offerSlide.lenght - 1;
+    //     }
+    //     showSlide(slideIndex);
+    // });
 });
 
