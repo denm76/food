@@ -380,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         offersliderPrev = document.querySelector('.offer__slider-prev'),
         offersliderNext = document.querySelector('.offer__slider-next'),
         offerSlide = document.querySelectorAll('.offer__slide'),
+        slider = document.querySelector('.offer__slider'),
         total = document.querySelector('#total'),
         slidesWrapper = document.querySelector('.offer__slider-wrapper'),
         slidesField = document.querySelector('.offer__slider-inner'),
@@ -400,6 +401,32 @@ document.addEventListener('DOMContentLoaded', () => {
         slide.style.width = width;
     });
 
+    //Всему слайдеру задаем relative position
+    slider.style.position = 'relative';
+
+    //Создаём обертку для точек и массив элементов точек
+    const indicators = document.createElement('ol'),
+          dots = [];
+    indicators.classList.add('carousel-indicators');
+    //Помещаем обертку внутрь слайдера
+    slider.append(indicators);
+
+    //Создаём точки и присваиваем им дата-атрибут с номером слайда,
+    // присваиваем стили элементу точки
+    for(let i = 0; i < offerSlide.length; i++){
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);
+        dot.classList.add('dot');
+        if( i == 0){
+            dot.style.backgroundColor = 'gold';
+        }
+        indicators.append(dot);
+        //Добавляем элемент в массив
+        dots.push(dot);
+    }
+
+    
+
     offersliderNext.addEventListener('click', ()=>{
         if(offset == +width.slice(0, width.length - 2)*(offerSlide.length - 1)){
             offset = 0;
@@ -415,7 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
             slideIndex++;
         }
 
+
         current.textContent = getZero(slideIndex);
+        // В обработчиках события нажатия на стрелочку всем точкам присваиваем 
+        // бэкграунд стандартный, а активной золотой
+        dots.forEach(dot => dot.style.backgroundColor = '#fff');
+        dots[slideIndex - 1].style.backgroundColor = 'gold';
     });
 
     offersliderPrev.addEventListener('click', ()=>{
@@ -435,8 +467,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         current.textContent = getZero(slideIndex);
 
-
+        dots.forEach(dot => dot.style.backgroundColor = '#fff');
+        dots[slideIndex - 1].style.backgroundColor = 'gold';
         
+    });
+
+    //Добавляем точкам функциональность переключения слайдов
+    //при нажатии на точку
+
+    dots.forEach(dot => {
+        dot.addEventListener('click', (event) =>{
+            const slideTo = event.target.getAttribute('data-slide-to');
+
+            slideIndex = slideTo;
+            offset = +width.slice(0, width.length - 2)*(slideTo - 1);
+            slidesField.style.transform = `translateX(-${offset}px)`;
+
+            current.textContent = getZero(slideIndex);
+
+            dots.forEach(dot => dot.style.backgroundColor = '#fff');
+            dots[slideIndex - 1].style.backgroundColor = 'gold';
+        });
     });
     
     
