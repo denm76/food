@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 5000);//Запуск модального окна через 5 секунд после входа на сайт
+    //const modalTimerId = setTimeout(openModal, 5000);//Запуск модального окна через 5 секунд после входа на сайт
     //функция подсчета прокрутки экрана,
     // после срабатывания удаляет слушатель события прокрутки
     function showModalByScroll(){
@@ -380,47 +380,157 @@ document.addEventListener('DOMContentLoaded', () => {
         offersliderPrev = document.querySelector('.offer__slider-prev'),
         offersliderNext = document.querySelector('.offer__slider-next'),
         offerSlide = document.querySelectorAll('.offer__slide'),
-        total = document.querySelector('#total');
+        slider = document.querySelector('.offer__slider'),
+        total = document.querySelector('#total'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-inner'),
+        width = window.getComputedStyle(slidesWrapper).width;
+
+    let slideIndex = 1;
+    let offset = 0;
+
+    slidesField.style.width = 100 * offerSlide.length + '%';
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all';
+    slidesWrapper.style.overflow = 'hidden';
 
     total.textContent = getZero(offerSlide.length);
+    current.textContent = getZero(slideIndex);
 
-    let slideIndex = 0;
+    offerSlide.forEach(slide => {
+        slide.style.width = width;
+    });
 
-    function changeSlideNumber(index){
-        current.innerHTML = getZero(index+1); 
+    //Всему слайдеру задаем relative position
+    slider.style.position = 'relative';
+
+    //Создаём обертку для точек и массив элементов точек
+    const indicators = document.createElement('ol'),
+          dots = [];
+    indicators.classList.add('carousel-indicators');
+    //Помещаем обертку внутрь слайдера
+    slider.append(indicators);
+
+    //Создаём точки и присваиваем им дата-атрибут с номером слайда,
+    // присваиваем стили элементу точки
+    for(let i = 0; i < offerSlide.length; i++){
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);
+        dot.classList.add('dot');
+        if( i == 0){
+            dot.style.backgroundColor = 'gold';
+        }
+        indicators.append(dot);
+        //Добавляем элемент в массив
+        dots.push(dot);
     }
 
-    function showSlide(index = 0){
-        changeSlideNumber(index);
-        offerSlide.forEach((item, number)=>{
-        if(number !== index){
-            item.classList.remove('show', 'fade');
-            item.classList.add('hide');
+    function findNotNumber(str){
+        const newStringDigitOnly = str.replace(/\D/g, '');
+        return +newStringDigitOnly;
+    }
+
+    offersliderNext.addEventListener('click', ()=>{
+        if(offset == findNotNumber(width)*(offerSlide.length - 1)){
+            offset = 0;
+        }else{
+            offset += findNotNumber(width);
         }
-        else{
-            item.classList.remove('hide');
-            item.classList.add('show', 'fade');
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if(slideIndex == offerSlide.length){
+            slideIndex = 1;
+        }else{
+            slideIndex++;
         }
+
+
+        current.textContent = getZero(slideIndex);
+        // В обработчиках события нажатия на стрелочку всем точкам присваиваем 
+        // бэкграунд стандартный, а активной золотой
+        dots.forEach(dot => dot.style.backgroundColor = '#fff');
+        dots[slideIndex - 1].style.backgroundColor = 'gold';
+    });
+
+    offersliderPrev.addEventListener('click', ()=>{
+        if(offset == 0){
+            offset = findNotNumber(width)*(offerSlide.length - 1);
+        }else{
+            offset -= findNotNumber(width);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if(slideIndex == 1){
+            slideIndex = offerSlide.length;
+        }else{
+            slideIndex--;
+        }
+
+        current.textContent = getZero(slideIndex);
+
+        dots.forEach(dot => dot.style.backgroundColor = '#fff');
+        dots[slideIndex - 1].style.backgroundColor = 'gold';
+        
+    });
+
+    //Добавляем точкам функциональность переключения слайдов
+    //при нажатии на точку
+
+    dots.forEach(dot => {
+        dot.addEventListener('click', (event) =>{
+            const slideTo = event.target.getAttribute('data-slide-to');
+
+            slideIndex = slideTo;
+            offset = +width.slice(0, width.length - 2)*(slideTo - 1);
+            slidesField.style.transform = `translateX(-${offset}px)`;
+
+            current.textContent = getZero(slideIndex);
+
+            dots.forEach(dot => dot.style.backgroundColor = '#fff');
+            dots[slideIndex - 1].style.backgroundColor = 'gold';
         });
-    }
-
-    showSlide();
-
-
-    offersliderNext.addEventListener('click', () =>{
-        slideIndex++;
-        if(slideIndex === offerSlide.length){
-            slideIndex = 0;
-        }
-        showSlide(slideIndex);
     });
+    
+    
+   
 
-    offersliderPrev.addEventListener('click', () => {
-        slideIndex--;
-        if(slideIndex < 0 ){
-            slideIndex = 3;
-        }
-        showSlide(slideIndex);
-    });
+    // function changeSlideNumber(index){
+    //     current.innerHTML = getZero(index+1); 
+    // }
+
+    // function showSlide(index = 0){
+    //     changeSlideNumber(index);
+    //     offerSlide.forEach((item, number)=>{
+    //     if(number !== index){
+    //         item.classList.remove('show', 'fade');
+    //         item.classList.add('hide');
+    //     }
+    //     else{
+    //         item.classList.remove('hide');
+    //         item.classList.add('show', 'fade');
+    //     }
+    //     });
+    // }
+
+    // showSlide();
+
+
+    // offersliderNext.addEventListener('click', () =>{
+    //     slideIndex++;
+    //     if(slideIndex === offerSlide.length){
+    //         slideIndex = 0;
+    //     }
+    //     showSlide(slideIndex);
+    // });
+
+    // offersliderPrev.addEventListener('click', () => {
+    //     slideIndex--;
+    //     if(slideIndex < 0 ){
+    //         slideIndex = offerSlide.lenght - 1;
+    //     }
+    //     showSlide(slideIndex);
+    // });
 });
 
