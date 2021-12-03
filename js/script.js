@@ -425,13 +425,16 @@ document.addEventListener('DOMContentLoaded', () => {
         dots.push(dot);
     }
 
-    
+    function findNotNumber(str){
+        const newStringDigitOnly = str.replace(/\D/g, '');
+        return +newStringDigitOnly;
+    }
 
     offersliderNext.addEventListener('click', ()=>{
-        if(offset == +width.slice(0, width.length - 2)*(offerSlide.length - 1)){
+        if(offset == findNotNumber(width)*(offerSlide.length - 1)){
             offset = 0;
         }else{
-            offset += +width.slice(0, width.length - 2);
+            offset += findNotNumber(width);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -452,9 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     offersliderPrev.addEventListener('click', ()=>{
         if(offset == 0){
-            offset = +width.slice(0, width.length - 2)*(offerSlide.length - 1);
+            offset = findNotNumber(width)*(offerSlide.length - 1);
         }else{
-            offset -= +width.slice(0, width.length - 2);
+            offset -= findNotNumber(width);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
